@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    restart: unless-stopped
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+    ports:
+      - "8333:6333"
+    networks:
+      - rag-net
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "5678:5678"
+    environment:  
+      - GENERIC_TIMEZONE=Asia/Jakarta
+    volumes:
+      - ./n8n:/home/node/.n8n
+    depends_on:
+      - qdrant
+    networks:
+      - rag-net
+
+networks:
+  rag-net:
+    driver: bridge
